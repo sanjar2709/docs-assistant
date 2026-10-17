@@ -35,3 +35,8 @@ DB_PORT = os.getenv('DB_PORT', '5432')
 
 DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 DB_ECHO = os.getenv('DB_ECHO') == '1'
+
+# Uploads
+
+MEDIA_DIR = Path(os.getenv('MEDIA_DIR', BASE_DIR / 'media'))
+MAX_UPLOAD_BYTES = int(os.getenv('MAX_UPLOAD_MB', 10)) * 1024 * 1024
