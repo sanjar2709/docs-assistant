@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.users.models import User
 from core import settings
+from core.embeddings import embed
 
 from .chunking import chunk_pages
 from .extract import SUPPORTED_TYPES, ExtractionError, extract_pages
@@ -70,9 +71,13 @@ async def process_document(db: AsyncSession, document: Document) -> Document:
         return document
 
     chunks = chunk_pages(pages)
+    vectors = await embed([c.text for c in chunks])
     # Added directly instead of through document.chunks: assigning the relationship would lazy-load it,
     # and lazy loading isn't allowed with an async session
-    db.add_all(Chunk(document_id=document.id, index=i, page=c.page, text=c.text) for i, c in enumerate(chunks))
+    db.add_all(
+        Chunk(document_id=document.id, index=i, page=c.page, text=c.text, embedding=vector)
+        for i, (c, vector) in enumerate(zip(chunks, vectors, strict=True))
+    )
     document.pages = max((p.number for p in pages if p.number), default=None)
     document.chunks_count = len(chunks)
     document.status = DocumentStatus.READY

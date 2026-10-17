@@ -40,3 +40,12 @@ DB_ECHO = os.getenv('DB_ECHO') == '1'
 
 MEDIA_DIR = Path(os.getenv('MEDIA_DIR', BASE_DIR / 'media'))
 MAX_UPLOAD_BYTES = int(os.getenv('MAX_UPLOAD_MB', 10)) * 1024 * 1024
+
+# Embeddings. Changing the model to one with another size needs a migration of chunks.embedding.
+
+EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'sentence-transformers/paraphrase-multilingual-mpnet-base-v2')
+EMBEDDING_DIMENSIONS = 768
+EMBEDDING_CACHE_DIR = Path(os.getenv('EMBEDDING_CACHE_DIR', BASE_DIR / '.cache' / 'models'))
+
+# Background jobs go through Redis. Empty means documents are processed inside the upload request.
+REDIS_URL = os.getenv('REDIS_URL', '')

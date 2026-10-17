@@ -1,6 +1,9 @@
+from arq import create_pool
+from arq.connections import RedisSettings
 from fastapi import APIRouter, HTTPException, UploadFile, status
 
 from apps.users.dependencies import CurrentUser
+from core import settings
 from core.db import DBSession
 
 from . import services
@@ -8,6 +11,17 @@ from .models import Document
 from .schemas import DocumentRead
 
 router = APIRouter(prefix='/documents', tags=['documents'])
+
+
+async def enqueue_processing(db, document: Document) -> Document:
+    if not settings.REDIS_URL:
+        return await services.process_document(db, document)
+    redis = await create_pool(RedisSettings.from_dsn(settings.REDIS_URL))
+    try:
+        await redis.enqueue_job('process_document_job', document.id)
+    finally:
+        await redis.aclose()
+    return document
 
 
 async def get_own_document(db, document_id: int, user) -> Document:
@@ -23,7 +37,8 @@ async def upload(file: UploadFile, db: DBSession, user: CurrentUser):
         document = await services.save_upload(db, user, file)
     except services.UploadError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from None
-    return await services.process_document(db, document)
+    # Returns right away with status "processing"; the client polls until it's "ready"
+    return await enqueue_processing(db, document)
 
 
 @router.get('', response_model=list[DocumentRead])

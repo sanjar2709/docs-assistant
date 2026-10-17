@@ -1,9 +1,11 @@
 from enum import StrEnum
 
-from sqlalchemy import Enum, ForeignKey, Integer, String, Text
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import Enum, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from apps.common.models import TimeStampedMixin
+from core import settings
 from core.db import Base
 
 
@@ -44,6 +46,15 @@ class Chunk(Base):
     """A piece of a document small enough to search and to quote."""
 
     __tablename__ = 'chunks'
+    __table_args__ = (
+        # HNSW index for fast nearest-neighbour search by cosine distance
+        Index(
+            'ix_chunks_embedding',
+            'embedding',
+            postgresql_using='hnsw',
+            postgresql_ops={'embedding': 'vector_cosine_ops'},
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     document_id: Mapped[int] = mapped_column(ForeignKey('documents.id', ondelete='CASCADE'), index=True)
@@ -51,5 +62,6 @@ class Chunk(Base):
     # PDF page the chunk starts on; Word and text files have no pages
     page: Mapped[int | None] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(settings.EMBEDDING_DIMENSIONS))
 
     document: Mapped[Document] = relationship(back_populates='chunks')
