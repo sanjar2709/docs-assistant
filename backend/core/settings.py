@@ -49,3 +49,12 @@ EMBEDDING_CACHE_DIR = Path(os.getenv('EMBEDDING_CACHE_DIR', BASE_DIR / '.cache' 
 
 # Background jobs go through Redis. Empty means documents are processed inside the upload request.
 REDIS_URL = os.getenv('REDIS_URL', '')
+
+# Answers
+
+CLAUDE_MODEL = os.getenv('CLAUDE_MODEL', 'claude-opus-5-5')
+# How many chunks go to the model, and how similar a chunk has to be to count as relevant
+RETRIEVAL_LIMIT = int(os.getenv('RETRIEVAL_LIMIT', 6))
+MIN_RELEVANCE = float(os.getenv('MIN_RELEVANCE', 0.75))
+# Earlier messages sent along with a new question
+HISTORY_MESSAGES = int(os.getenv('HISTORY_MESSAGES', 6))
