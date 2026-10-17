@@ -68,8 +68,8 @@ def build_user_content(question: str, sources: list[Source]) -> tuple[list[dict]
 
 
 class ClaudeLLM:
-    def __init__(self):
-        self.client = anthropic.AsyncAnthropic()
+    def __init__(self, client: anthropic.AsyncAnthropic | None = None):
+        self.client = client or anthropic.AsyncAnthropic()
 
     async def answer(self, question: str, history: list[dict], sources: list[Source]) -> AsyncIterator[AnswerEvent]:
         content, documents = build_user_content(question, sources)
