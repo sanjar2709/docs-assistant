@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+from apps.users.router import router as auth_router
 from core import settings
 from core.db import DBSession
 from core.exceptions import register_exception_handlers
@@ -28,3 +29,6 @@ app.add_middleware(
 async def health(db: DBSession):
     await db.execute(text('SELECT 1'))
     return {'status': 'ok', 'database': 'ok'}
+
+
+app.include_router(auth_router, prefix='/api/v1')

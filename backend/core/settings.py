@@ -19,6 +19,12 @@ if not SECRET_KEY:
 
 ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:3001').split()
 
+ACCESS_TOKEN_LIFETIME_MINUTES = int(os.getenv('ACCESS_TOKEN_LIFETIME_MINUTES', 30))
+REFRESH_TOKEN_LIFETIME_DAYS = int(os.getenv('REFRESH_TOKEN_LIFETIME_DAYS', 7))
+
+# Login and register attempts per minute from one IP
+AUTH_RATE_LIMIT = int(os.getenv('AUTH_RATE_LIMIT', 10))
+
 # Database
 
 DB_NAME = os.getenv('DB_NAME')
