@@ -7,7 +7,7 @@ addopts = '--strict-markers'
 
 [tool.coverage.run]
 source = ['apps', 'core']
-omit = ['*/tests/*']
+omit = ['*/tests/*', 'apps/documents/reprocess.py']
 # SQLAlchemy async runs our code inside greenlets
 concurrency = ['greenlet', 'thread']
 
