@@ -3,12 +3,12 @@ import uuid
 from pathlib import Path
 
 from fastapi import UploadFile
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from apps.users.models import User
 from core import settings
-from core.embeddings import embed
+from core.embeddings import embed_passages
 
 from .chunking import chunk_pages
 from .extract import SUPPORTED_TYPES, ExtractionError, extract_pages
@@ -71,7 +71,9 @@ async def process_document(db: AsyncSession, document: Document) -> Document:
         return document
 
     chunks = chunk_pages(pages)
-    vectors = await embed([c.text for c in chunks])
+    vectors = await embed_passages([c.text for c in chunks])
+    # Processing again (e.g. after switching the embedding model) replaces the old chunks
+    await db.execute(delete(Chunk).where(Chunk.document_id == document.id))
     # Added directly instead of through document.chunks: assigning the relationship would lazy-load it,
     # and lazy loading isn't allowed with an async session
     db.add_all(

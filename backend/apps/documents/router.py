@@ -1,6 +1,8 @@
+from typing import Annotated
+
 from arq import create_pool
 from arq.connections import RedisSettings
-from fastapi import APIRouter, HTTPException, UploadFile, status
+from fastapi import APIRouter, HTTPException, Query, UploadFile, status
 
 from apps.users.dependencies import CurrentUser
 from core import settings
@@ -8,7 +10,8 @@ from core.db import DBSession
 
 from . import services
 from .models import Document
-from .schemas import DocumentRead
+from .schemas import DocumentRead, SearchHit
+from .search import search as search_chunks
 
 router = APIRouter(prefix='/documents', tags=['documents'])
 
@@ -44,6 +47,16 @@ async def upload(file: UploadFile, db: DBSession, user: CurrentUser):
 @router.get('', response_model=list[DocumentRead])
 async def list_documents(db: DBSession, user: CurrentUser):
     return await services.list_documents(db, user)
+
+
+@router.get('/search', response_model=list[SearchHit])
+async def search(
+    db: DBSession,
+    user: CurrentUser,
+    q: Annotated[str, Query(min_length=2, max_length=500)],
+    limit: Annotated[int, Query(ge=1, le=20)] = 5,
+):
+    return await search_chunks(db, user, q, limit)
 
 
 @router.get('/{document_id}', response_model=DocumentRead)

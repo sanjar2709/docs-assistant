@@ -17,3 +17,14 @@ class DocumentRead(BaseModel):
     pages: int | None
     chunks_count: int
     created_at: datetime
+
+
+class SearchHit(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    chunk_id: int
+    document_id: int
+    document_title: str
+    page: int | None
+    text: str
+    score: float
