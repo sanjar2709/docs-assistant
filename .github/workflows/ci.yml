@@ -67,3 +67,50 @@ jobs:
       - run: npx prettier --check .
       - run: npm run typecheck
       - run: npm run build
+
+  # On main, after the checks pass: build the image and push it to GitHub Container Registry
+  image:
+    if: github.event_name == 'push'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        part: [backend, frontend]
+    steps:
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: ${{ matrix.part }}
+          push: true
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          tags: |
+            ghcr.io/${{ github.repository }}-${{ matrix.part }}:latest
+            ghcr.io/${{ github.repository }}-${{ matrix.part }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.part }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.part }}
+
+  # Runs only when the DEPLOY_HOST variable and DEPLOY_SSH_KEY secret are set in the repo settings.
+  # deploy-app comes from github.com/sanjar2709/infra
+  deploy:
+    if: github.event_name == 'push' && vars.DEPLOY_HOST != ''
+    needs: image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Roll out this commit on the server
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ vars.DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+          ssh "deploy@$HOST" deploy-app docs-assistant "${{ github.sha }}"
