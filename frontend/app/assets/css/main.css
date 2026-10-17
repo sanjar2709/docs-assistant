@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--font-sans: ui-sans-serif, system-ui, sans-serif;
+
+	--color-primary-50: oklch(0.962 0.018 272.3);
+	--color-primary-100: oklch(0.93 0.034 272.8);
+	--color-primary-500: oklch(0.585 0.233 277.1);
+	--color-primary-600: oklch(0.511 0.262 276.9);
+	--color-primary-700: oklch(0.457 0.24 277);
+}
+
+@utility transition-300 {
+	transition: all 300ms ease;
+}
+
+@utility flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@utility container {
+	margin-inline: auto;
+	padding-inline: 16px;
+	max-width: 1400px;
+}
+
+html {
+	@apply bg-slate-50 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-100;
+}
+
+/* Thin scrollbar for the side panels and the chat */
+.scroll-thin {
+	scrollbar-width: thin;
+}
+
+.page-change-enter-active,
+.page-change-leave-active {
+	transition: opacity 0.2s ease;
+}
+.page-change-enter-from,
+.page-change-leave-to {
+	opacity: 0;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+	transition: all 0.2s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+	opacity: 0;
+	transform: translateY(12px) scale(0.98);
+}

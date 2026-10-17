@@ -1,0 +1,40 @@
+{
+	"name": "docs-assistant",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"lint": "eslint .",
+		"format": "prettier --write .",
+		"typecheck": "nuxt typecheck"
+	},
+	"dependencies": {
+		"@nuxt/icon": "^2.5.1",
+		"@pinia/nuxt": "^1.0.3",
+		"@tailwindcss/vite": "^4.3.3",
+		"@vueuse/core": "^15.0.0",
+		"@vueuse/nuxt": "^15.0.0",
+		"nuxt": "^4.6.2",
+		"pinia": "^4.1.0",
+		"tailwindcss": "^4.3.3",
+		"vue": "^3.5.44",
+		"vue-router": "^5.4.0"
+	},
+	"devDependencies": {
+		"@iconify-json/lucide": "^1.2.145",
+		"@nuxt/eslint": "^1.17.0",
+		"eslint": "^10.13.0",
+		"eslint-config-prettier": "^10.1.8",
+		"prettier": "^3.9.10",
+		"typescript": "^6.0.3",
+		"vue-tsc": "^3.3.13"
+	},
+	"allowScripts": {
+		"esbuild@0.28.2": true,
+		"unrs-resolver@1.12.2": true
+	}
+}
