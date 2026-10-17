@@ -1,0 +1,23 @@
+[tool.pytest.ini_options]
+python_files = ['test_*.py']
+asyncio_mode = 'auto'
+asyncio_default_fixture_loop_scope = 'session'
+asyncio_default_test_loop_scope = 'session'
+addopts = '--strict-markers'
+
+[tool.coverage.run]
+source = ['apps', 'core']
+omit = ['*/tests/*']
+# SQLAlchemy async runs our code inside greenlets
+concurrency = ['greenlet', 'thread']
+
+[tool.ruff]
+line-length = 120
+target-version = 'py312'
+extend-exclude = ['migrations']
+
+[tool.ruff.lint]
+select = ['E', 'W', 'F', 'I', 'B', 'UP', 'SIM', 'ASYNC']
+
+[tool.ruff.lint.isort]
+known-first-party = ['apps', 'core']
